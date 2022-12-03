@@ -1,5 +1,64 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    TODO
+    <div class="main-title">
+        <h1>All Posts</h1>
+    </div>
+    <div class="main-content">
+        {% if user.is_authenticated %}
+            <div class="row">
+                <div class="col">
+                    <div class="card h-100" id="post-grid">
+                        <div class="card-body">
+                            <form action="{% url 'newPost' %}" method="POST">
+                                {% csrf_token %}
+                                <h4><strong>New Post</strong></h4>
+                                <textarea name="newPostText" id="newPostText" rows="4"></textarea>
+                                <div align="right">
+                                    <button id="newPostButton" type="submit" name="newPostButton" class="btn btn-outline-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                            <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
+                                            <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"/>
+                                        </svg>
+                                        <strong>ADD POST</strong>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <div class="alert alert-danger" role="alert">
+                Please sign in or register to be able to add a post.
+            </div>
+        {% endif %}
+        {% for post in posts %}
+            <div class="row">
+                <div class="col">
+                    <div class="card h-100" id="post-grid">
+                        <div class="card-body">
+                            <h5 style="display: inline" class="card-title"><strong>{{ post.author }}</strong></h5>
+                            <div style="display: inline; color: gray;" class="card-date"> | {{ post.timestamp }}</div>
+                            <p class="card-text">{{ post.description }}</p>
+                            <div class="card-buttonsContainer">
+                                <div align="left" class="card-button">
+                                    <button id="heartButton" type="submit" name="heartButton" class="btn btn-outline-danger">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z"/>
+                                        </svg>
+                                        <strong>{{ post.like }}</strong>
+                                    </button>
+                                </div>
+                                <div align="right" class="card-button">
+                                    <a class="btn btn-primary" href="" role="button"><strong>EDIT</strong></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
