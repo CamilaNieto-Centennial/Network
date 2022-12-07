@@ -4,14 +4,23 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
+from django.core.paginator import Paginator
+
 from .models import User, Post
 
 
 def index(request):
     posts = Post.objects.all().order_by("id").reverse()
 
+    # Pagination Feature
+    p = Paginator(posts, 10)
+    pageNumber = request.GET.get('page')
+    postsPage = p.get_page(pageNumber)
+
+
     return render(request, "network/index.html", {
-        "posts": posts
+        "posts": posts,
+        "postsPage": postsPage
     })
 
 
