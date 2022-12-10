@@ -2,44 +2,67 @@
 
 {% block body %}
 <div class="main-title">
-    <h1>All Posts</h1>
+    <h1>Profile Page</h1>
 </div>
 <div class="main-content">
-    {% if user.is_authenticated %}
-    <!--New Post-->
-    <div class="row">
-        <div class="col">
-            <div class="card h-100" id="post-grid">
-                <div class="card-body">
-                    <form action="{% url 'newPost' %}" method="POST">
-                        {% csrf_token %}
-                        <h4><strong>New Post</strong></h4>
-                        <textarea name="newPostText" id="newPostText" rows="4"></textarea>
-                        <div align="right">
-                            <button id="newPostButton" type="submit" name="newPostButton"
-                                class="btn btn-outline-primary">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                    <path
-                                        d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                    <path fill-rule="evenodd"
-                                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-                                </svg>
-                                <strong>ADD POST</strong>
-                            </button>
+
+    <!--Card Info-->
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-10 col-lg-8 mt-3" style="background: #fdf0d5">
+            <div class="row">
+                <div class="col-sm-4 bg-info rounded-left">
+                    <div class="card-block text-center text-white">
+                        <i class="fas fa-user-tie fa-7x mt-4"></i>
+                        <h1 class="font-weight-bold mt-4">{{username}}</h1>
+                    </div>
+                </div>
+                <div class="col-sm-8 bg-white rounded-right">
+                    <h2 class="mt-3 text-center">Information</h2>
+                    <hr class="badge-dark w-25">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h5><strong>{{ p.count }} </strong><span class="text-muted"> Posts</span></h5>
                         </div>
-                    </form>
+                        <div class="col-sm-12">
+                            <h5><strong>{{ following.count }} </strong><span class="text-muted">Following</span></h5>
+                        </div>
+                        <div class="col-sm-12">
+                            <h5><strong>{{ follower.count }} </strong><span class="text-muted">Followers</span></h5>
+                        </div>
+                    </div>
+                    {% if user.is_authenticated and user != userProfile %}
+                        {% if isFollowing %}
+                            <form action="{% url 'unfollow' %}" method="post">
+                                {% csrf_token %}
+                                <div class="row d-flex justify-content-center">
+                                    <input type="hidden" name="userProfile" value="{{ userProfile }}"> <!--Name from the card (example: Marcus)-->
+                                    <button id="newPostButton" type="submit" name="unfollowButton"
+                                        class="btn btn-danger">
+                                        <strong>UNFOLLOW</strong>
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <form action="{% url 'follow' %}" method="post">
+                                {% csrf_token %}
+                                <div class="row d-flex justify-content-center">
+                                    <input type="hidden" name="userProfile" value="{{ userProfile }}"> <!--Name from the card (example: Marcus)-->
+                                    <button id="newPostButton" type="submit" name="followButton"
+                                        class="btn btn-primary">
+                                        <strong>FOLLOW</strong>
+                                    </button>
+                                </div>
+                            </form>
+                        {% endif %}
+                        
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
-    {% else %}
-    <div class="alert alert-danger" role="alert">
-        Please sign in or register to be able to add a post.
-    </div>
-    {% endif %}
 
+    
     <!--All Posts-->
     {% for post in postsPage %}
     <div class="row">
@@ -107,6 +130,8 @@
         </ul>
     </nav>
     <div class="d-flex justify-content-center" style="color: gray;" class="card-date">{{ postsPage }}</div>
+
+
 
 </div>
 {% endblock %}

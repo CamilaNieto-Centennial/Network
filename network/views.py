@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from django.core.paginator import Paginator
 
-from .models import User, Post
+from .models import User, Post, Follow
 
 
 def index(request):
@@ -91,3 +91,78 @@ def newPost(request):
         createdPost.save()
 
         return HttpResponseRedirect(reverse("index"))
+
+# Profile Page
+def profilePage(request, user_id):
+    user = User.objects.get(pk=user_id) # User from the card
+    posts = Post.objects.filter(author=user).order_by("id").reverse()
+
+    # Following and Followers info for that user
+    following = Follow.objects.filter(user=user)
+    follower = Follow.objects.filter(followedUser=user)
+
+    # Checking if the user is still following a specific person
+    try:
+        checkingFollow = follower.filter(user=User.objects.get(pk=request.user.id))
+        if len(checkingFollow) != 0:
+            isFollowing = True
+        else:
+            isFollowing = False
+
+    except:
+        isFollowing = False
+
+
+    # Pagination Feature
+    p = Paginator(posts, 10)
+    pageNumber = request.GET.get('page')
+    postsPage = p.get_page(pageNumber)
+
+    return render(request, "network/profile.html", {
+        "posts": posts,
+        "p": p,
+        "postsPage": postsPage,
+        "username": user.username,
+        "userProfile": user,
+        "following": following,
+        "follower": follower,
+        "isFollowing": isFollowing
+    })
+
+# Follow Button from Profile Page
+def follow(request):
+    # Get info about the user from the Card (Inside Profile Page)
+    userProfile = request.POST['userProfile']
+
+    # Get the current user who logged in
+    currentUser = User.objects.get(pk=request.user.id)
+
+    # Check the username of the person (from User) who the current user wants to follow
+    userProfileVerified = User.objects.get(username=userProfile)
+
+    # Update the Follow database
+    newFollow = Follow(user=currentUser, followedUser=userProfileVerified)
+    newFollow.save()
+
+    user_id = userProfileVerified.id
+    
+    return HttpResponseRedirect(reverse("profilePage", kwargs= {"user_id": user_id} ))
+
+# Unfollow Button from Profile Page
+def unfollow(request):
+    # Get info about the user from the Card (Inside Profile Page)
+    userProfile = request.POST['userProfile']
+
+    # Get the current user who logged in
+    currentUser = User.objects.get(pk=request.user.id)
+
+    # Check the username of the person (from User) who the current user wants to unfollow
+    userProfileVerified = User.objects.get(username=userProfile)
+
+    # Update the Follow database
+    newUnfollow = Follow.objects.get(user=currentUser, followedUser=userProfileVerified)
+    newUnfollow.delete()
+
+    user_id = userProfileVerified.id
+    
+    return HttpResponseRedirect(reverse("profilePage", kwargs= {"user_id": user_id} ))
