@@ -1,0 +1,87 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<div class="main-title">
+    <h1>Following</h1>
+</div>
+<div class="main-content">
+    {% if user.is_authenticated %}
+    
+    <!--All Posts-->
+    {% for post in postsPage %}
+    <div class="row">
+        <div class="col">
+            <div class="card h-100" id="post-grid">
+                <div class="card-body">
+                    <h5 style="display: inline" class="card-title"><a href="{% url 'profilePage' user_id=post.author.id %}"><strong>{{ post.author }}</strong></a></h5>
+                    <div style="display: inline; color: gray;" class="card-date"> | {{ post.timestamp }}</div>
+                    <p class="card-text">{{ post.description }}</p>
+                    <div class="card-buttonsContainer">
+                        <div align="left" class="card-button">
+                            <button id="heartButton" type="submit" name="heartButton" class="btn btn-outline-danger">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd"
+                                        d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                </svg>
+                                <strong>{{ post.like }}</strong>
+                            </button>
+                        </div>
+                        <div align="right" class="card-button">
+                            <a class="btn btn-primary" href="" role="button"><strong>EDIT</strong></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!--Pagination-->
+    <nav aria-label="...">
+        <ul class="pagination d-flex justify-content-center">
+            {% if postsPage.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postsPage.previous_page_number }}">Previous</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for pageNumber in postsPage.paginator.page_range %}
+                {% if postsPage.number == pageNumber %}
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link">{{pageNumber}}</a>
+                    </li>
+                {% else %}
+                    <a href="?page={{ pageNumber }}" class="page-link">
+                        {{ pageNumber }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+
+            {% if postsPage.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ postsPage.next_page_number }}">Next</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="d-flex justify-content-center" style="color: gray;" class="card-date">{{ postsPage }}</div>
+
+
+
+    {% else %}
+    <div class="alert alert-danger" role="alert">
+        Please sign in or register to be able to check the Following Page.
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -166,3 +166,29 @@ def unfollow(request):
     user_id = userProfileVerified.id
     
     return HttpResponseRedirect(reverse("profilePage", kwargs= {"user_id": user_id} ))
+
+
+# Following Page
+def following(request):
+    # Get the current user who logged in
+    currentUser = User.objects.get(pk=request.user.id)
+    followingUsers = Follow.objects.filter(user=currentUser)
+
+    posts = Post.objects.all().order_by("id").reverse()
+
+    followingPosts = []
+
+    # Filter all posts, to just get the posts made by users that the current user follows
+    for post in posts:
+        for user in followingUsers:
+            if user.followedUser == post.author:
+                followingPosts.append(post)
+
+    # Pagination Feature
+    p = Paginator(followingPosts, 10)
+    pageNumber = request.GET.get('page')
+    postsPage = p.get_page(pageNumber)
+
+    return render(request, "network/following.html", {
+        "postsPage": postsPage
+    })
