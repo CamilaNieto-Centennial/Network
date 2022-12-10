@@ -1,6 +1,13 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
+<script>
+    function submitEdit(id) {
+        console.log(id)
+    }
+
+</script>
+
 <div class="main-title">
     <h1>All Posts</h1>
 </div>
@@ -60,9 +67,29 @@
                                 <strong>{{ post.like }}</strong>
                             </button>
                         </div>
+                        {% if user.is_authenticated and user == post.author %}
                         <div align="right" class="card-button">
-                            <a class="btn btn-primary" href="" role="button"><strong>EDIT</strong></a>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editPost{{ post.id }}"><strong>EDIT</strong></button>
                         </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="editPost{{ post.id }}" tabindex="-1" aria-labelledby="editPost{{ post.id }}Label" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="editPostLabel">Edit Post</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <textarea name="description" class="form-control" id="textarea{{ post.id }}" rows="4">{{post.description}}</textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+                                <button type="button" class="btn btn-primary" onclick="submitEdit('{{ post.id }}')">SAVE</button>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
