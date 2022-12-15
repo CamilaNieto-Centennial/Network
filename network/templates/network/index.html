@@ -2,8 +2,32 @@
 
 {% block body %}
 <script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if(parts.length == 2) return parts.pop().split(';').shift();
+    }
+
     function submitEdit(id) {
-        console.log(id)
+        let textareaEdit = document.getElementById(`textarea${id}`);
+        console.log(textareaEdit.value);
+
+        let descriptionPost = document.getElementById(`description${id}`)
+        let modal = document.getElementById(`editPost${id}`)
+
+        fetch(`/editPost/${id}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', "X-CSRFToken": getCookie("csrftoken")},
+            body: JSON.stringify({
+                description: textareaEdit.value
+            })
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log(data);
+            // Update automatically the description from the post card
+            descriptionPost.innerHTML = data.data;
+        })
     }
 
 </script>
@@ -55,7 +79,7 @@
                 <div class="card-body">
                     <h5 style="display: inline" class="card-title"><a href="{% url 'profilePage' user_id=post.author.id %}"><strong>{{ post.author }}</strong></a></h5>
                     <div style="display: inline; color: gray;" class="card-date"> | {{ post.timestamp }}</div>
-                    <p class="card-text">{{ post.description }}</p>
+                    <p class="card-text" id="description{{post.id}}">{{ post.description }}</p>
                     <div class="card-buttonsContainer">
                         <div align="left" class="card-button">
                             <button id="heartButton" type="submit" name="heartButton" class="btn btn-outline-danger">
@@ -84,7 +108,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
-                                <button type="button" class="btn btn-primary" onclick="submitEdit('{{ post.id }}')">SAVE</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="submitEdit('{{ post.id }}')">SAVE</button>
                             </div>
                             </div>
                         </div>

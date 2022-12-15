@@ -1,3 +1,5 @@
+import json
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -192,3 +194,19 @@ def following(request):
     return render(request, "network/following.html", {
         "postsPage": postsPage
     })
+
+# Edit Post Feature
+def editPost(request, post_id):
+    # POST request method
+    if request.method == "POST":
+        # Check textarea value
+        data = json.loads(request.body)
+        textarea_edit = Post.objects.get(pk=post_id)
+        textarea_edit.description = data["description"]
+
+        # Save new value from textarea  and return JsonResponse
+        textarea_edit.save()
+        return JsonResponse({
+            "message": "Edit successfully",
+            "data": data["description"]
+        })
