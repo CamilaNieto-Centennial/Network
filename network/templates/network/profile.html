@@ -71,21 +71,68 @@
                 <div class="card-body">
                     <h5 style="display: inline" class="card-title"><a href="{% url 'profilePage' user_id=post.author.id %}"><strong>{{ post.author }}</strong></a></h5>
                     <div style="display: inline; color: gray;" class="card-date"> | {{ post.timestamp }}</div>
-                    <p class="card-text">{{ post.description }}</p>
+                    <p class="card-text" id="description{{post.id}}">{{ post.description }}</p>
                     <div class="card-buttonsContainer">
-                        <div align="left" class="card-button">
-                            <button id="heartButton" type="submit" name="heartButton" class="btn btn-outline-danger">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        
+                        {% if user.is_authenticated %}
+                            {% if post.id in postsLiked %}
+                            <!--Already liked-->
+                            <div align="left" class="card-button">
+                                <button id="heartButton{{post.id}}" onClick="likeHandler('{{ post.id }}', '{{postsLiked}}', '{{post.post_like.count}}')" type="submit" name="heartButton" class="btn btn-outline-danger heartButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-heart-fill" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
+                                    </svg>
+                                    <strong>{{ post.post_like.count }}</strong>
+                                </button>
+                            </div>
+
+                            {% else %}
+                            <!--Not liked-->
+                            <div align="left" class="card-button">
+                                <button id="heartButton{{post.id}}" onClick="likeHandler('{{ post.id }}', '{{postsLiked}}', '{{post.post_like.count}}')" type="submit" name="heartButton" class="btn btn-outline-danger heartButton">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-heart" viewBox="0 0 16 16">
+                                        <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01L8 2.748zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143c.06.055.119.112.176.171a3.12 3.12 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15z"/>
+                                    </svg>
+                                    <strong>{{ post.post_like.count }}</strong>
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#dc3545"
                                     class="bi bi-heart-fill" viewBox="0 0 16 16">
                                     <path fill-rule="evenodd"
                                         d="M8 1.314C12.438-3.248 23.534 4.735 8 15-7.534 4.736 3.562-3.248 8 1.314z" />
                                 </svg>
-                                <strong>{{ post.like }}</strong>
-                            </button>
-                        </div>
+                                <strong style="color: #dc3545">{{ post.post_like.count }}</strong>
+                        {% endif %}
+
+                        {% if user.is_authenticated and user == post.author %}
                         <div align="right" class="card-button">
-                            <a class="btn btn-primary" href="" role="button"><strong>EDIT</strong></a>
+                            <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#editPost{{ post.id }}"><strong>EDIT</strong></button>
                         </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="editPost{{ post.id }}" tabindex="-1" aria-labelledby="editPost{{ post.id }}Label" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="editPostLabel">Edit Post</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <textarea name="description" class="form-control" id="textarea{{ post.id }}" rows="4">{{post.description}}</textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">CLOSE</button>
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="submitEdit('{{ post.id }}')">SAVE</button>
+                            </div>
+                            </div>
+                        </div>
+                        </div>
+
+
+                        {% endif %}
                     </div>
                 </div>
             </div>

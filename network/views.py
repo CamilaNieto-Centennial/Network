@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from django.core.paginator import Paginator
 
-from .models import User, Post, Follow
+from .models import User, Post, Follow, Like
 
 
 def index(request):
@@ -19,10 +19,23 @@ def index(request):
     pageNumber = request.GET.get('page')
     postsPage = p.get_page(pageNumber)
 
+    totalLikes = Like.objects.all()
+
+    postsLiked = []
+
+    try: 
+        # Append the postsLiked list from our current user, and update database
+        for like in totalLikes:
+            if like.user.id == request.user.id:
+                postsLiked.append(like.post.id)
+    except:
+        postsLiked = []
 
     return render(request, "network/index.html", {
         "posts": posts,
-        "postsPage": postsPage
+        "postsPage": postsPage,
+        "postsLiked": postsLiked,
+        "totalLikes": totalLikes
     })
 
 
@@ -114,6 +127,19 @@ def profilePage(request, user_id):
     except:
         isFollowing = False
 
+    
+    totalLikes = Like.objects.all()
+
+    postsLiked = []
+
+    try: 
+        # Append the postsLiked list from our current user, and update database
+        for like in totalLikes:
+            if like.user.id == request.user.id:
+                postsLiked.append(like.post.id)
+    except:
+        postsLiked = []
+
 
     # Pagination Feature
     p = Paginator(posts, 10)
@@ -128,7 +154,9 @@ def profilePage(request, user_id):
         "userProfile": user,
         "following": following,
         "follower": follower,
-        "isFollowing": isFollowing
+        "isFollowing": isFollowing,
+        "postsLiked": postsLiked,
+        "totalLikes": totalLikes
     })
 
 # Follow Button from Profile Page
@@ -191,8 +219,24 @@ def following(request):
     pageNumber = request.GET.get('page')
     postsPage = p.get_page(pageNumber)
 
+    totalLikes = Like.objects.all()
+
+    postsLiked = []
+
+    try: 
+        # Append the postsLiked list from our current user, and update database
+        for like in totalLikes:
+            if like.user.id == request.user.id:
+                postsLiked.append(like.post.id)
+    except:
+        postsLiked = []
+
+
+
     return render(request, "network/following.html", {
-        "postsPage": postsPage
+        "postsPage": postsPage,
+        "postsLiked": postsLiked,
+        "totalLikes": totalLikes
     })
 
 # Edit Post Feature
@@ -209,4 +253,30 @@ def editPost(request, post_id):
         return JsonResponse({
             "message": "Edit successfully",
             "data": data["description"]
+        })
+
+# Like feature
+def like(request, post_id): 
+    # Check like button context
+    thisPost = Post.objects.get(pk=post_id)
+    thisUser = User.objects.get(pk=request.user.id)
+    thisLike = Like(user=thisUser, post=thisPost)
+
+    # Save 'thisLike' and return JsonResponse
+    thisLike.save()
+    return JsonResponse({
+            "message": "Liked successfully"
+        })
+
+# Unike feature
+def unlike(request, post_id): 
+    # Check unlike button context
+    thisPost = Post.objects.get(pk=post_id)
+    thisUser = User.objects.get(pk=request.user.id)
+    thisUnlike = Like.objects.filter(user=thisUser, post=thisPost)
+
+    # Delete 'thisUnlike' and return JsonResponse
+    thisUnlike.delete()
+    return JsonResponse({
+            "message": "Unliked successfully"
         })

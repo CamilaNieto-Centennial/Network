@@ -24,7 +24,7 @@ textarea {
 }
 
 /* ♥ Button*/
-#heartButton {
+.heartButton {
     border: none;
 }
 
