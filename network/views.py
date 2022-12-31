@@ -100,7 +100,7 @@ def newPost(request):
         user = request.user
 
         # Add data to the database
-        createdPost = Post.objects.create(author=user, description=postField, like=0)
+        createdPost = Post.objects.create(author=user, description=postField)
 
         # Save data to the database
         createdPost.save()
